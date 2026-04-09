@@ -3,145 +3,594 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="p:domain_verify" content="437beb320bb4e6568a1f2d7542e1bf89"/>
   <title>Ad Caddy — Social Media Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #0A0E14;
-      color: #D6E4EF;
-      min-height: 100vh;
+    :root {
+      --bg: #06080C;
+      --bg-card: #0A0E14;
+      --bg-card-2: #0F1820;
+      --border: #1C3048;
+      --border-bright: #2A6186;
+      --text: #D6E4EF;
+      --text-dim: #6A8FAB;
+      --text-faint: #3A5A75;
+      --red: #9B1B30;
+      --red-bright: #C42040;
+      --blue: #4A8DB7;
+      --cyan: #5BB8D4;
+      --font-display: 'Orbitron', monospace;
+      --font-body: 'Rajdhani', sans-serif;
+      --font-mono: 'Share Tech Mono', monospace;
     }
-    .container { max-width: 900px; margin: 0 auto; padding: 60px 24px; }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body {
+      background:
+        radial-gradient(ellipse at top, rgba(155,27,48,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom, rgba(74,141,183,0.06) 0%, transparent 50%),
+        linear-gradient(135deg, #06080C 0%, #0A0E14 50%, #0C1420 100%);
+    }
+
+    /* === Scanline overlay === */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, rgba(74,141,183,0.15), transparent);
+      animation: scanline 8s linear infinite;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100vh); }
+    }
+
+    /* === CRT noise === */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 1px, transparent 1px, transparent 3px);
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--font-display);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .mono { font-family: var(--font-mono); }
+
+    /* === NAV === */
     nav {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 20px 40px;
-      border-bottom: 1px solid #1C3048;
+      padding: 18px 40px;
+      background: rgba(10,14,20,0.8);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--blue), transparent);
+      opacity: 0.5;
     }
     nav .logo {
+      font-family: var(--font-display);
       font-size: 14px;
-      font-weight: 800;
-      letter-spacing: 0.2em;
+      font-weight: 900;
+      letter-spacing: 0.25em;
       text-transform: uppercase;
-      color: #D6E4EF;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-shadow: 0 0 10px rgba(155,27,48,0.6);
     }
-    nav .logo span { color: #9B1B30; }
-    nav a {
-      color: #6A8FAB;
+    nav .logo .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--red);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--red);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    nav .logo span { color: var(--red); }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    nav .links a {
+      color: var(--text-dim);
       text-decoration: none;
-      font-size: 12px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-left: 24px;
-      transition: color 0.2s;
-    }
-    nav a:hover { color: #D6E4EF; }
-    .hero {
-      text-align: center;
-      padding: 120px 24px 80px;
-    }
-    .hero h1 {
-      font-size: 48px;
-      font-weight: 800;
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      margin-bottom: 16px;
+      margin-left: 32px;
+      transition: all 0.2s;
+      position: relative;
     }
-    .hero h1 span { color: #9B1B30; }
+    nav .links a:hover {
+      color: var(--text);
+      text-shadow: 0 0 8px rgba(74,141,183,0.6);
+    }
+
+    /* === HERO === */
+    .hero {
+      text-align: center;
+      padding: 140px 24px 100px;
+      position: relative;
+    }
+    .hero .tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      padding: 6px 16px;
+      border: 1px solid rgba(91,184,212,0.3);
+      background: rgba(91,184,212,0.05);
+      margin-bottom: 28px;
+      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    }
+    .hero .tag::before { content: '◆ '; color: var(--cyan); }
+    .hero h1 {
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      margin-bottom: 24px;
+      line-height: 1.1;
+    }
+    .hero h1 span {
+      color: var(--red);
+      text-shadow:
+        0 0 20px rgba(155,27,48,0.6),
+        0 0 40px rgba(155,27,48,0.3);
+    }
     .hero p {
-      font-size: 16px;
-      color: #6A8FAB;
-      max-width: 560px;
-      margin: 0 auto 40px;
+      font-family: var(--font-body);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text-dim);
+      max-width: 620px;
+      margin: 0 auto 48px;
       line-height: 1.7;
     }
+    .hero .hud-line {
+      max-width: 200px;
+      height: 1px;
+      margin: 0 auto;
+      background: linear-gradient(90deg, transparent, var(--blue), transparent);
+    }
+
+    /* === Section header === */
+    .section-header {
+      max-width: 1100px;
+      margin: 80px auto 32px;
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .section-header .marker {
+      width: 4px;
+      height: 24px;
+      background: var(--red);
+      box-shadow: 0 0 10px rgba(155,27,48,0.6);
+    }
+    .section-header h2 {
+      font-size: 14px;
+      letter-spacing: 0.2em;
+      color: var(--text);
+    }
+    .section-header .line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border), transparent);
+    }
+    .section-header .id {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-faint);
+      letter-spacing: 0.15em;
+    }
+
+    /* === FEATURES GRID === */
     .features {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      max-width: 900px;
+      gap: 16px;
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 0 24px 80px;
+      padding: 0 40px;
     }
     .feature {
-      background: #0C1119;
-      border: 1px solid #1C3048;
+      background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-card-2) 100%);
+      border: 1px solid var(--border);
       padding: 28px 24px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+    .feature::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--red), var(--blue), transparent);
+      opacity: 0.6;
+    }
+    .feature::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 2px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--blue), transparent);
+      opacity: 0.3;
+    }
+    .feature:hover {
+      border-color: var(--border-bright);
+      transform: translateY(-2px);
+      box-shadow:
+        0 0 20px rgba(74,141,183,0.15),
+        0 0 40px rgba(74,141,183,0.05);
+    }
+    .feature .icon {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--cyan);
+      letter-spacing: 0.15em;
+      margin-bottom: 16px;
     }
     .feature h3 {
-      font-size: 12px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: #9B1B30;
-      margin-bottom: 8px;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      color: var(--text);
+      margin-bottom: 10px;
     }
     .feature p {
-      font-size: 13px;
-      color: #6A8FAB;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-dim);
       line-height: 1.6;
     }
+
+    /* === Integrations panel === */
+    .integrations {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+    .panel {
+      background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-card-2) 100%);
+      border: 1px solid var(--border);
+      padding: 36px;
+      margin-bottom: 16px;
+      position: relative;
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    }
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--red), var(--blue), transparent);
+    }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .panel-header .badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      padding: 4px 10px;
+      background: rgba(91,184,212,0.1);
+      border: 1px solid rgba(91,184,212,0.3);
+    }
+    .panel h3 {
+      font-size: 18px;
+      letter-spacing: 0.15em;
+      color: var(--text);
+      flex: 1;
+    }
+    .panel p {
+      font-size: 15px;
+      color: var(--text);
+      line-height: 1.8;
+      margin-bottom: 14px;
+    }
+    .panel .meta {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.8;
+    }
+    .panel .meta strong {
+      color: var(--text);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .panel code {
+      font-family: var(--font-mono);
+      background: var(--bg);
+      padding: 3px 8px;
+      color: var(--cyan);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      margin: 0 2px;
+    }
+    .panel .platforms-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .panel .platforms-list span {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      background: rgba(74,141,183,0.08);
+      border: 1px solid rgba(74,141,183,0.3);
+      color: var(--blue);
+    }
+
+    /* === CTA === */
+    .cta {
+      max-width: 800px;
+      margin: 100px auto 60px;
+      padding: 60px 40px;
+      text-align: center;
+      background: linear-gradient(145deg, rgba(155,27,48,0.05) 0%, rgba(74,141,183,0.05) 100%);
+      border: 1px solid var(--border-bright);
+      position: relative;
+      clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+    }
+    .cta::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--red-bright), var(--cyan), transparent);
+    }
+    .cta h2 {
+      font-size: 28px;
+      color: var(--text);
+      margin-bottom: 14px;
+      letter-spacing: 0.1em;
+    }
+    .cta p {
+      color: var(--text-dim);
+      font-size: 16px;
+      margin-bottom: 32px;
+    }
+    .btn {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 14px 36px;
+      background: linear-gradient(135deg, var(--red), #7A1526);
+      border: 1px solid var(--red-bright);
+      color: white;
+      text-decoration: none;
+      transition: all 0.2s;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    }
+    .btn:hover {
+      background: linear-gradient(135deg, var(--red-bright), var(--red));
+      box-shadow:
+        0 0 20px rgba(155,27,48,0.5),
+        0 0 40px rgba(155,27,48,0.2);
+    }
+
+    /* === FOOTER === */
     .footer {
       text-align: center;
-      padding: 40px 24px;
-      border-top: 1px solid #1C3048;
-      color: #3A5A75;
-      font-size: 12px;
+      padding: 50px 24px;
+      border-top: 1px solid var(--border);
+      color: var(--text-faint);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      position: relative;
     }
-    .footer a { color: #4A8DB7; text-decoration: none; }
-    .footer a:hover { color: #D6E4EF; }
-    @media (max-width: 640px) {
-      .features { grid-template-columns: 1fr; }
-      .hero h1 { font-size: 32px; }
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--blue), transparent);
+      opacity: 0.4;
+    }
+    .footer a { color: var(--blue); text-decoration: none; transition: color 0.2s; }
+    .footer a:hover { color: var(--cyan); text-shadow: 0 0 8px rgba(91,184,212,0.5); }
+    .footer .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .footer .status .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--blue);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--blue);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      nav .links a { margin-left: 18px; font-size: 10px; }
+      .hero { padding: 80px 24px 60px; }
+      .hero h1 { font-size: 38px; }
+      .features { grid-template-columns: 1fr; padding: 0 20px; }
+      .section-header { padding: 0 20px; margin-top: 60px; }
+      .integrations { padding: 0 20px; }
+      .panel { padding: 28px 24px; }
+      .cta { padding: 40px 24px; margin: 60px 20px; }
     }
   </style>
 </head>
 <body>
   <nav>
-    <div class="logo"><span>Ad</span> Caddy</div>
-    <div>
+    <div class="logo">
+      <span class="dot"></span>
+      <span>Ad</span>&nbsp;Caddy
+    </div>
+    <div class="links">
       <a href="/">Home</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
     </div>
   </nav>
 
-  <div class="hero">
+  <section class="hero">
+    <div class="tag">SOCIAL MEDIA COMMAND CENTER // V1.0</div>
     <h1><span>Ad</span> Caddy</h1>
-    <p>A desktop social media command center for managing content across Facebook, Instagram, Threads, LinkedIn, TikTok, and more — all from one place.</p>
+    <p>A desktop command center for deploying content across Facebook, Instagram, Threads, LinkedIn, TikTok, YouTube, Pinterest, Bluesky, and Google Business — from a single tactical interface.</p>
+    <div class="hud-line"></div>
+  </section>
+
+  <div class="section-header">
+    <div class="marker"></div>
+    <h2>Capabilities</h2>
+    <div class="line"></div>
+    <div class="id">// SECTION_001</div>
   </div>
 
   <div class="features">
     <div class="feature">
-      <h3>Multi-Platform Publishing</h3>
-      <p>Compose once, deploy everywhere. Publish to Facebook, Instagram, Threads, LinkedIn, TikTok, and YouTube simultaneously.</p>
+      <div class="icon">[ 01 ]</div>
+      <h3>Multi-Platform Deploy</h3>
+      <p>Compose once, deploy everywhere. Publish to nine platforms simultaneously from one tactical interface.</p>
     </div>
     <div class="feature">
-      <h3>AI-Powered Content</h3>
-      <p>Generate post ideas, rewrite content, and get hashtag suggestions powered by Claude AI.</p>
+      <div class="icon">[ 02 ]</div>
+      <h3>AI Content Engine</h3>
+      <p>Generate post ideas, rewrite content, and get hashtag suggestions powered by Claude AI integration.</p>
     </div>
     <div class="feature">
+      <div class="icon">[ 03 ]</div>
       <h3>Analytics & CRM</h3>
       <p>Track engagement, conversions, and ROI across all platforms with built-in HubSpot CRM integration.</p>
     </div>
     <div class="feature">
-      <h3>Scheduling</h3>
+      <div class="icon">[ 04 ]</div>
+      <h3>Mission Scheduling</h3>
       <p>Plan and schedule posts with a visual calendar. Set accountability commitments to stay consistent.</p>
     </div>
     <div class="feature">
-      <h3>Lead Prospecting</h3>
+      <div class="icon">[ 05 ]</div>
+      <h3>Lead Recon</h3>
       <p>Find and enrich company contacts with Apollo.io integration. Push leads directly to your CRM.</p>
     </div>
     <div class="feature">
-      <h3>A/B Testing</h3>
-      <p>Test different versions of your content to find what resonates best with your audience.</p>
+      <div class="icon">[ 06 ]</div>
+      <h3>A/B Lab</h3>
+      <p>Test different versions of your content to find what resonates best with your target audience.</p>
     </div>
   </div>
 
+  <div class="section-header">
+    <div class="marker"></div>
+    <h2>Platform Integrations</h2>
+    <div class="line"></div>
+    <div class="id">// SECTION_002</div>
+  </div>
+
+  <div class="integrations">
+    <div class="panel">
+      <div class="panel-header">
+        <h3>TikTok Integration</h3>
+        <div class="badge">ACTIVE</div>
+      </div>
+      <p>
+        Ad Caddy integrates with TikTok to allow content creators to publish short-form video content directly from the desktop app. This eliminates the need to manually upload videos through the TikTok mobile app, streamlining the content workflow for businesses managing multiple social platforms.
+      </p>
+      <div class="meta">
+        <strong>Scopes used:</strong> <code>user.info.basic</code> (to identify the connected account), <code>video.publish</code> (to upload videos via the Content Posting API), and <code>video.upload</code> (for the pull-from-URL upload flow).
+      </div>
+      <div class="meta" style="margin-top: 10px;">
+        <strong>How it works:</strong> Users authenticate via OAuth, select TikTok as a target platform in the Deploy page, attach a video file, write a caption, and click Launch. Ad Caddy uploads the video to TikTok using the Content Posting API and tracks the publish status.
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h3>Other Supported Platforms</h3>
+        <div class="badge">9 LINKED</div>
+      </div>
+      <p>
+        Each integration uses the platform's official API and requires the user to authenticate via OAuth before posting. No credentials are stored on third-party servers — all auth tokens live locally on the user's device.
+      </p>
+      <div class="platforms-list">
+        <span>Facebook</span>
+        <span>Instagram</span>
+        <span>Threads</span>
+        <span>LinkedIn</span>
+        <span>YouTube</span>
+        <span>Pinterest</span>
+        <span>Bluesky</span>
+        <span>Google Business</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta">
+    <h2>Ready for Deployment</h2>
+    <p>Ad Caddy is built for operators who need to move fast across every front.</p>
+    <a href="mailto:rolando@bitecaddy.co" class="btn">Request Access</a>
+  </div>
+
   <div class="footer">
-    <p>&copy; 2026 Ad Caddy. All rights reserved. | <a href="/privacy">Privacy Policy</a> | <a href="/terms">Terms of Service</a></p>
-    <p style="margin-top: 8px;">Contact: rolando@bitecaddy.co</p>
+    <div class="status"><span class="dot"></span>SYSTEMS ONLINE</div>
+    <p>&copy; 2026 AD CADDY // ALL RIGHTS RESERVED</p>
+    <p style="margin-top: 10px;">
+      <a href="/privacy">PRIVACY</a> &nbsp;//&nbsp;
+      <a href="/terms">TERMS</a> &nbsp;//&nbsp;
+      <a href="mailto:rolando@bitecaddy.co">ROLANDO@BITECADDY.CO</a> &nbsp;//&nbsp;
+      <a href="https://adcaddy.app">ADCADDY.APP</a>
+    </p>
   </div>
 </body>
 </html>
